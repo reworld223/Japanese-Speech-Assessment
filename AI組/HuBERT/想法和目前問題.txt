@@ -1,0 +1,24 @@
+目前問題:
+
+用 japanese_hubert_base連接一層conv1D再用 FC輸出所有 token可能值的 id
+輸出形狀[batch_size, sequence_length, num_tokens] 
+再轉換符合 CTCLoss的形狀，做 log_softmax放入 CTCLoss計算
+
+Q: CTCLoss最一開始就是全零，可能是 log_softmax出來的值都太接近的原因。
+可能做 nromalize，或是改變多加的模型架構？
+
+----------------------------------------------------------------------------------------
+未來想法:
+
+下周再解不出來，可能會先擱置 japanese_hubert_base的 CTCLoss為 0 的問題，
+先考慮使用學長姐的提供的音檔和 label(T / F)，
+直接從原始的 japanese_hubert_base的 transformer layer提出特徵，
+再輸入到 BLSTM看看，能不能評估正確。(照理說應該是能行)
+
+也會考慮使用 wav2vec2的日文版本的 transformer layer提出特徵
+
+-----------------------------------------------------------------------------------------
+備案: 
+
+之前使用 HubertForCTC(英文訓練出來的) 做日文 ASR微調，感覺對於單字而言，
+轉羅馬拼音的作法，其成果還不錯。也可以考慮轉作單字評分。
