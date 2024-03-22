@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <!--網頁圖示-->
+        <link rel="shortcut icon" href="{{ url_for('static',  filename='favicon.ico') }}">
+        <title>測試結果</title>
+        <style>
+            /*載入字體*/
+            @import url('https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@500&display=swap');
+            html{
+                /*設定字體*/
+                font-family: 'Mochiy Pop One', sans-serif;
+                font-family: 'Zen Maru Gothic', sans-serif;
+                /*設定邊界*/
+                margin-top: 10px;
+                margin-left: 20px;
+                /*設定背景顏色*/
+                background-color: #f9f7f0;
+            }
+            h1{
+                /*設定字體大小*/
+                font-size: 70px;
+                /*設定字和字之間的寬度*/
+                letter-spacing:4px;
+                /*設定字體顏色*/
+                color: #18b7be;
+                /*設定邊界*/
+                margin-left: 70px;
+            }
+            
+            .inputword{
+                /*設定字體大小*/
+                font-size: 30px;
+                /*設定邊界*/
+                margin: 10px;
+            }
+            .printword,.printresult{
+                /*設定背景顏色*/
+                background-color:white;
+                /*設定字體大小*/
+                font-size: 30px;
+                /*設定字體顏色*/
+                color: #072a40;
+                /*設定角角弧度*/
+                border-radius: 50px;
+                /*設定邊界*/
+                padding:0 25px 0 25px;
+                margin: 10px;
+                /*設定長寬*/
+                width: 300px;
+                height: 50px;
+            }
+            button,input{
+                /*設定字體*/
+                font-family: 'Mochiy Pop One', sans-serif;
+                font-family: 'Zen Maru Gothic', sans-serif;
+                /*設定字體大小*/
+                font-size: 25px;
+                /*設定邊界樣式*/
+                border:2px #178ca4 solid;
+                /*設定角角弧度*/
+                border-radius: 20px;
+                /*設定滑鼠樣式*/
+                cursor: pointer;
+                /*設定長寬*/
+                height: 50px;
+                width: 100px;
+                /*設定背景顏色*/
+                background-color:#f9f7f0;
+                /*設定字體顏色*/
+                color:#178ca4;
+                /*設定動畫時間*/
+                transition-duration: 0.4s;
+                /*設定邊界*/
+                margin: 10px;
+            }
+            /*設定滑鼠在上面的樣式*/
+            button:hover,input:hover{
+                background-color: #178ca4;
+                color: #f9f7f0;
+            }
+            .box1,.box2,.box3{
+                /*設為彈性盒子*/
+                display: flex;
+                /*設定邊界*/
+                margin-left: 400px;
+            }
+            ul{
+                /*設定list前面的點點*/
+                list-style-type: none;
+            }
+    </style>
+    </head>
+    <body>
+      <h1>這次評分為: <span id="returnedValue"></span></h1>
+      <div><a href="index1.html">返回頁面</div>
+      <script>
+          // 將返回的值存儲在 JavaScript 變量中
+          var returnedValue = "{{ returned_value }}"; // 這裡的 "{{ returned_value }}" 是從後端傳遞過來的值
+          // 將返回的值顯示在頁面上
+          returnedValue=100;
+          document.getElementById("returnedValue").textContent = returnedValue;
+      </script>
+  </body>
+</html>
