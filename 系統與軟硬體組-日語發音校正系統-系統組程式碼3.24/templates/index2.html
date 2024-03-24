@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <title>測試結果</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@500&display=swap');
+
+        html {
+            font-family: 'Mochiy Pop One', sans-serif;
+            font-family: 'Zen Maru Gothic', sans-serif;
+            margin-top: 10px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: #f9f7f0;
+        }
+
+        h1 {
+            font-size: 70px;
+            letter-spacing: 4px;
+            color: #18b7be;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+        
+        .inputword {
+            font-size: 30px;
+            margin: 10px auto;
+            text-align: center;
+        }
+
+        .printword, .printresult {
+            background-color: white;
+            font-size: 30px;
+            color: #072a40;
+            border-radius: 50px;
+            padding: 0 25px;
+            margin: 10px auto;
+            width: 300px;
+            height: 50px;
+            display: block;
+            text-align: center;
+        }
+
+        button, input {
+            font-size: 25px;
+            border: 2px #178ca4 solid;
+            border-radius: 20px;
+            cursor: pointer;
+            height: 50px;
+            width: 200px;
+            background-color: #f9f7f0;
+            color: #178ca4;
+            transition-duration: 0.4s;
+            margin: 10px auto;
+            display: block;
+            bottom: 0;
+        }
+
+        button:hover, input:hover {
+            background-color: #178ca4;
+            color: #f9f7f0;
+        }
+
+        .box1 {
+            display: flex;
+            margin-left: auto;
+            margin-right: auto;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .stars-container {
+            font-size: 0;
+            position: relative;
+            width: 250px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .star {
+            color: gold;
+            font-size: 48px;
+            animation: starAppear 0.5s ease forwards;
+            opacity: 0;
+            position: absolute;
+            top:-70px;
+        }
+
+        @keyframes starAppear {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <h1>測試結果</h1>
+    <div class="box1">
+        <div class="stars-container" id="starsContainer">
+            <span class="star" style="left: 0;">☆</span>
+            <span class="star" style="left: 50px;">☆</span>
+            <span class="star" style="left: 100px;">☆</span>
+            <span class="star" style="left: 150px;">☆</span>
+            <span class="star" style="left: 200px;">☆</span>
+        </div>
+        <p class="inputword">測試分數：{{word_str}}</p>
+        <p><span id="score"></span></p>
+    </div>
+    
+    <button class="returnback" onclick="back_to_record()">返回測試頁面</button>
+    <script>
+        var score = {{ word_str }};
+        function showStars(score) {
+            var starsContainer = document.getElementById("starsContainer");
+            var stars = starsContainer.getElementsByClassName("star");
+            for (var i = 0; i < stars.length; i++) {
+                if (i < Math.floor(score / 20)) {
+                    stars[i].textContent = "★";
+                    stars[i].style.opacity = 1;
+                } else {
+                    stars[i].textContent = "☆";
+                    stars[i].style.opacity = 0;
+                }
+            }
+        }
+        showStars(score);
+
+        const back = document.querySelector('.returnback');
+        const data = document.querySelector('.printword');
+        const correct = document.querySelector('.correct');  
+        const incorrect = document.querySelector('.incorrect');
+        result.style.display = 'none';
+        back.style.display = 'none';
+        data.textContent = "{{ word_str }}";
+        document.getElementById('score').textContent = data;
+
+        function back_to_record() {
+            location.href = "/";
+        }
+    </script>
+</body>
+</html>
