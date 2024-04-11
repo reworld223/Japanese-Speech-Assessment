@@ -5,14 +5,14 @@ import os
 from pyngrok import ngrok
 import scoringModule
 
-UPLOAD_FOLDER = 'audio'#儲存音檔的資料夾
+UPLOAD_FOLDER = './audio'#儲存音檔的資料夾
 
-app = Flask(__name__, template_folder='templates')
+app = Flask(__name__, template_folder='./templates')
 
 @app.route("/", methods=['GET'])
 def index():
     now = datetime.now()  #讀取當前時間
-    fileName = now.strftime("%Y-%m-%d%H-%M") + ".mp3"  #以現在時間作為檔名
+    fileName = now.strftime("%Y-%m-%d%H-%M%S") + ".mp3"  #以現在時間作為檔名
     global nowtime
     nowtime = fileName  #傳入全域變數中
     print(nowtime)
@@ -43,7 +43,7 @@ def end():
     fileurl = os.path.join(UPLOAD_FOLDER, fileName)  #獲取檔案儲存的位置路徑
     # result = pytest.load_file(os.path.realpath(fileurl))  #將使用者的語音載入
     result = scoringModule.scoring(fileurl)
-    return render_template('index2.html',word_str = result)#index2的路徑
+    return render_template('index2.html',word_str=result)#index2的路徑
 
 if __name__=='__main__':
     public_url = ngrok.connect(5000)

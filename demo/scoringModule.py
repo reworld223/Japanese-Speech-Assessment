@@ -1,81 +1,82 @@
+# ----- Imports -----
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from transformers import AutoProcessor, HubertModel, AutoConfig, AutoTokenizer
-from transformers import WhisperProcessor, WhisperForConditionalGeneration
 import pandas as pd
-import librosa
 import pyarrow as pa
-import pyarrow.dataset as ds
-from datasets import Dataset
+import librosa
+import subprocess
 import torchaudio
 import pykakasi
+from datasets import Dataset
+from transformers import HubertForCTC, Wav2Vec2Processor, AutoTokenizer, HubertModel
+from reazonspeech.nemo.asr import transcribe, audio_from_path, load_model
+from modelscope.pipelines import pipeline
+from modelscope.utils.constant import Tasks
 
-whisperProcessor = WhisperProcessor.from_pretrained("jakeyoo/whisper-medium-ja")
-model = WhisperForConditionalGeneration.from_pretrained("jakeyoo/whisper-medium-ja")
-model.config.forced_decoder_ids = None
 
 
-# def speech_file_to_array_fn(batch):
-#     # 使用 librosa 載入音頻檔案，並將其轉換為陣列
-#     speech_array, sampling_rate = librosa.load(batch["path"], sr=16_000)
-#     batch["array"] = speech_array
-#     return batch
+# ----- Model Loading -----
+kks = pykakasi.kakasi()
+model = load_model()
+
+processor = Wav2Vec2Processor.from_pretrained('TKU410410103/hubert-base-japanese-asr')
+hubert = HubertForCTC.from_pretrained('TKU410410103/hubert-base-japanese-asr')
+hubert.config.output_hidden_states=True
+tokenizer = AutoTokenizer.from_pretrained("cl-tohoku/bert-base-japanese-char")
+
+# ----- Function Definitions -----
+
+def acoustic_noise_suppression(input_wav_path, output_wav_path):
+    ans = pipeline(
+        Tasks.acoustic_noise_suppression,
+        model='damo/speech_frcrn_ans_cirm_16k')
+    result = ans(
+        input_wav_path,
+        output_path=output_wav_path)
+    return result
+
+def modified_filename(file_path):
+    base_name = file_path.rsplit('.', 1)[0]
+    extension = file_path.rsplit('.', 1)[1]
+    output_file = f"{base_name}1.{extension}"
+    return output_file
+
+def convert_to_wav(input_path, output_path):
+    command = [
+        'ffmpeg',
+        '-i', input_path,
+        '-ar', '16000',
+        '-ac', '1',
+        '-f', 'wav',
+        output_path
+    ]
+    try:
+        subprocess.run(command, check=True, capture_output=True)
+    except subprocess.CalledProcessError as e:
+        print("FFmpeg failed:")
+        print(e.stderr.decode('utf-8'))
+        raise e
 
 def process_waveforms(batch):
-    
     waveform, sample_rate = torchaudio.load(batch['audio_path'])
-
     if sample_rate != 16000:
         resampler = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=16000)
         waveform = resampler(waveform)
-
-    # 如果 waveform 是雙聲道，需要轉單聲道。給 4GE用
+    # 如果 waveform 是雙聲道，需要轉單聲道。
     if waveform.size(0) > 1:
         waveform = waveform.mean(dim=0)
-
     # 讓 waveform的維度正確
     if waveform.ndim > 1:
         waveform = waveform.squeeze()
-
     batch["speech_array"] = waveform
-
     return batch
 
-def whisper(audio_paths):
-    kakasi = pykakasi.kakasi()
-    kakasi.setMode("J","H")
-    kakasi.setMode("K","H")
-    kakasi.setMode("r","Hepburn")
-    conv = kakasi.getConverter()
-    
-    # 建立一個包含音頻路徑的 DataFrame
-    test_dataset = {"audio_path":[audio_paths]}
-    test_dataset = pd.DataFrame(test_dataset)
-    # 將 DataFrame 轉換為 Dataset 對象
-    test_dataset = Dataset(pa.Table.from_pandas(test_dataset))
-    # 將每個音頻檔案轉換為陣列
-    test_dataset = test_dataset.map(process_waveforms)
-    # 處理音頻數據以獲取模型的輸入特徵
-    input_features = whisperProcessor(test_dataset['speech_array'], sampling_rate=16_000, return_tensors="pt").input_features
-
-    # 使用模型生成預測結果，並關閉梯度計算以加快速度
-    with torch.no_grad():
-        predicted_ids = model.generate(input_features)
-
-    # 解碼預測結果以獲得文字轉寫
-    transcription = whisperProcessor.batch_decode(predicted_ids, skip_special_tokens=True)
-
-    # 處理轉寫結果以去除不需要的部分
-    text = []
-    for index in range(len(transcription)):
-        transcription_len = len(transcription[index])
-        text.append(transcription[index][0:transcription_len-1])
-
-    result = conv.do(text[0])
-    # 返回處理後的文字結果
-    return result  # 返回文本
-
+def asr(path):
+    audio = audio_from_path(path)
+    ret = transcribe(model, audio)
+    result = kks.convert(ret.text)
+    return result[0]['hira']
 
 class BLSTMSpeechScoring(nn.Module):
     def __init__(self, input_size=768, hidden_size=128, num_layers=1, output_size=1, embedding_dim=64, vocab_size=4000):
@@ -115,12 +116,6 @@ class BLSTMSpeechScoring(nn.Module):
         gap_acoustic = torch.mean(acoustic_features, dim=1)
         gap_linguistic = torch.mean(linguistic_features, dim=1)
 
-        # 確保在串接之前批量大小相同，怕音檔和文字的數量不對，取完整的
-        if gap_acoustic.size(0) != gap_linguistic.size(0):
-            min_batch_size = min(gap_acoustic.size(0), gap_linguistic.size(0))
-            gap_acoustic = gap_acoustic[:min_batch_size, :]
-            gap_linguistic = gap_linguistic[:min_batch_size, :]
-
         # 串接特徵並最終評分
         concatenated_features = torch.cat((gap_acoustic, gap_linguistic), dim=1)
         concatenated_features = F.relu(concatenated_features)
@@ -129,8 +124,6 @@ class BLSTMSpeechScoring(nn.Module):
         return score
     
 judge = 0.65
-
-
 class Trainer:
     def __init__(self, model, tokenizer):
         self.model = model
@@ -144,22 +137,13 @@ class Trainer:
             outputs = self.model(acoustic_input, linguistic_input)
         return outputs
 
-
-processor = AutoProcessor.from_pretrained("facebook/hubert-large-ls960-ft")
-
-config = AutoConfig.from_pretrained("rinna/japanese-hubert-base", output_hidden_states=True)
-hubert = HubertModel.from_pretrained("rinna/japanese-hubert-base", config=config)
-
-
 def make_dataframe(audio_path):
     row = []
-    text = whisper(audio_path)
-    # text = 'さい'
+    text = asr(audio_path)
     print(text)
     row.append({'audio_path': audio_path, 'text': text})
     df = pd.DataFrame(row)
     return df
-
 
 def get_acoustic_feature(batch):
     with torch.no_grad():
@@ -171,7 +155,6 @@ def get_acoustic_feature(batch):
                     max_length=160000)
         outputs = hubert(**processed_audios)
 
-    # all layers
     transformer_hidden_states = outputs.hidden_states[:]
 
     # Stack transformer hidden states to have a new dimension for layers
@@ -182,21 +165,22 @@ def get_acoustic_feature(batch):
 
     return overall_avg_hidden_state
 
-tokenizer = AutoTokenizer.from_pretrained("cl-tohoku/bert-base-japanese-char")
+# Model Loading and Initialization
 blstm = BLSTMSpeechScoring()
-
-model_save_path = "./BLSTMSpeechScoring.pth"
+model_save_path = "./BLSTMSpeechScoring_0410.pth"
 blstm.load_state_dict(torch.load(model_save_path))
-
 blstm.eval()
-
 trainer = Trainer(blstm, tokenizer)
 
-
 def scoring(file_path):
-    df = make_dataframe(file_path)
+    converted_file_path = modified_filename(file_path)
+    convert_to_wav(input_path=file_path, output_path=converted_file_path)
+    
+    output_file = modified_filename(converted_file_path)
+    acoustic_noise_suppression(input_wav_path=converted_file_path, output_wav_path=output_file)
+    
+    df = make_dataframe(output_file)
     dataset = Dataset.from_pandas(df)
-    print(dataset)
     dataset_array = dataset.map(process_waveforms, remove_columns=['audio_path'])
     acoustic_input = get_acoustic_feature(dataset_array)
     text = list(df['text'])
@@ -206,3 +190,4 @@ def scoring(file_path):
 
     return score*100
     # return f"{float(score):.2f}"
+

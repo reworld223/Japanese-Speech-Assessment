@@ -1,0 +1,43 @@
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+pip install torchaudio # 2.2.1+cu118
+pip install librosa
+
+pip install 'transformers[torch]' -U #  Hugging Face 提供的lib，包含最新的自然語言處理模型和其所有的依賴庫
+pip uninstall transformer-engine
+pip install fairseq # 由 Facebook AI 研究所開發的序列到序列學習工具包
+pip install datasets==2.17.1 # Hugging Face 的dataset
+
+pip install huggingface_hub # huggingface社群
+
+pip install fugashi # MeCab 是日語的形態學分析器，有助於將日語文本分割成單詞或標記。
+pip install mecab-python3
+
+pip install ipadic # MeCab 的詞典，專為日語處理定製，提供豐富的語言學信息。
+pip install unidic-lite
+
+pip install pykakasi # 日文轉換平假名用
+
+pip install evaluate # Hugging Face 的evaluate庫，這裡用於 WER
+pip install jiwer # WER 需要
+
+
+pip install numpy==1.23.5
+pip install pyarrow==9.0.0
+pip install openpyxl # 打開xlsx
+
+pip install "modelscope[multi-modal]" # 降噪
+
+# 語音辨識
+apt-get install libsndfile1 ffmpeg 
+git clone https://github.com/reazon-research/reazonspeech
+pip install --no-warn-conflicts reazonspeech/pkg/nemo-asr
+---------------------------------------------
+
+pip install flask-ngrok
+pip install flask
+pip install pyngrok
+pip install pydub
+
+apt-get update
+apt-get install ffmpeg -y
