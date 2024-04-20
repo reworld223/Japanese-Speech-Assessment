@@ -17,8 +17,8 @@ from modelscope.utils.constant import Tasks
 
 # ----- Model Loading -----
 kks = pykakasi.kakasi()
-processor = Wav2Vec2Processor.from_pretrained('TKU410410103/hubert-base-japanese-asr')
-hubert = HubertForCTC.from_pretrained('./local_fine_tuning')
+processor = Wav2Vec2Processor.from_pretrained('TKU410410103/uniTKU-hubert-japanese-asr')
+hubert = HubertForCTC.from_pretrained('TKU410410103/uniTKU-hubert-japanese-asr')
 hubert.config.output_hidden_states=True
 tokenizer = AutoTokenizer.from_pretrained("cl-tohoku/bert-base-japanese-char")
 
@@ -117,7 +117,7 @@ class BLSTMSpeechScoring(nn.Module):
 
         # 串接特徵並最終評分
         concatenated_features = torch.cat((gap_acoustic, gap_linguistic), dim=1)
-        concatenated_features = F.relu(concatenated_features)
+        
         score = self.final_linear(concatenated_features)
 
         return score
@@ -167,7 +167,7 @@ def get_acoustic_feature(batch):
 
 # Model Loading and Initialization
 blstm = BLSTMSpeechScoring()
-model_save_path = "./BLSTMSpeechScoring_0410.pth"
+model_save_path = "./BLSTMSpeechScoring_TKU.pth"
 blstm.load_state_dict(torch.load(model_save_path))
 blstm.eval()
 trainer = Trainer(blstm, tokenizer)
