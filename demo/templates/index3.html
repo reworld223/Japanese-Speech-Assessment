@@ -34,18 +34,6 @@
         /*元素對齊方式*/
         justify-content: space-evenly;
       }
-      .box2{
-        height: 600px;
-        /*設定為彈性盒子*/
-        display:flex;
-        /*元素縱向排列*/
-        flex-direction: column;
-        /*元素對齊方式*/
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        overflow: auto;
-      }
       .use{
         /*設定背景顏色*/
         background-color:white;
@@ -60,7 +48,12 @@
       }
       .record{
         /*設定為彈性盒子*/
-        display: flex;
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100px;
+        height: 100px;
+        text-align: center;
         /*設定邊界*/
         margin-bottom: 30px;
       }
@@ -111,6 +104,7 @@
         table-layout: fixed;
         /*設定字的顏色*/
         color: #f9f7f0;
+        text-align: center;
       }
       .status-bar {
             width: 100%;
@@ -121,30 +115,54 @@
         }
         @media screen and (max-width:1000px){
         h1{
-          font-size: 35px;
+          font-size: 25px;
           letter-spacing:2px;
-          text-align: center;
+          text-align: left;
           padding-bottom: 0px;
-        }
-        .box2{
-          width: 100%;
         }
         table{
           width: 300px;
+          text-align: center;
         }
         .record-btn{
-          width: 100%;
+          position: fixed;  /*固定按鈕*/
+          left: 0;
+          bottom: 0;
+          width: 100px;
+          height: 100px;
           text-align: center;
           background-color: #f9f7f0;
         }
+        .POST{
+          position: fixed;  /*固定按鈕*/
+          right: 0;
+          bottom: 0;
+          width: 100px;
+          height: 100px;
+          text-align: center;
+          background-color: #f9f7f0;
+        }
+        .audio-mp3 {
+          position: fixed;
+          bottom: 30;
+          right: 0;
+        }
       }
+      .pronounce{
+        font-size:20px;
+        background-color: #178ca4;
+        color: #f9f7f0;
+        text-align: center;  
+        }
+      .pronounce:hover{
+      background-color: black;
+    }
     </style>
     <title>日語發音校正系統</title>
   </head>
   <body>
     <h1>日語發音校正系統</h1>
     <div class="box1">
-      <div class="box2">
         <!--字表-->
         <table>
           <colgroup>
@@ -153,105 +171,114 @@
           </colgroup>
           <caption style="color:#072a40;font-size: 40px;"><b>字表</b></caption>
           <tr>
-            <th>日文</th>
-            <th>中文</th>
+            <td>日文</th>
+            <td>中文</th>
           </tr>
           <tr>
-            <td>わたし</td>
+            <td class="pronounce" data-audio="audio/1.mp3">わたし</td>
             <td>我</td>
           </tr>
           <tr>
-            <td>わたしたち</td>
+            <td class="pronounce" data-audio="audio/2.mp3">わたしたち</td>
             <td>我們</td>
           </tr>
           <tr>
-            <td>あなた</td>
+            <td class="pronounce" data-audio="audio/3.mp3">あなた</td>
             <td>你</td>
           </tr>
           <tr>
-            <td>あのひと</td>
+            <td class="pronounce" data-audio="audio/4.mp3">あのひと</td>
             <td>那個人</td>
           </tr>
           <tr>
-            <td>あのかた</td>
+            <td class="pronounce" data-audio="audio/5.mp3">あのかた</td>
             <td>那個人-有禮貌</td>
           </tr>
           <tr>
-            <td>みなさん</td>
+            <td class="pronounce" data-audio="audio/6.mp3">みなさん</td>
             <td>大家</td>
           </tr>
           <tr>
-            <td>せんせい</td>
+            <td class="pronounce" data-audio="audio/7.mp3">せんせい</td>
             <td>老師</td>
           </tr>
           <tr>
-            <td>きょうし</td>
+            <td class="pronounce" data-audio="audio/8.mp3">きょうし</td>
             <td>教室</td>
           </tr>
           <tr>
-            <td>がくせい</td>
+            <td class="pronounce" data-audio="audio/9.mp3">がくせい</td>
             <td>學生</td>
           </tr>
           <tr>
-            <td>かいしゃいん</td>
+            <td class="pronounce" data-audio="audio/10.mp3">かいしゃいん</td>
             <td>公司職員</td>
           </tr>
           <tr>
-            <td>しゃいん</td>
+            <td class="pronounce" data-audio="audio/11.mp3">しゃいん</td>
             <td>職員</td>
           </tr>
           <tr>
-            <td>ぎんこういん</td>
+            <td class="pronounce" data-audio="audio/12.mp3">ぎんこういん</td>
             <td>銀行員</td>
           </tr>
           <tr>
-            <td>いしゃ</td>
+            <td class="pronounce" data-audio="audio/13.mp3">いしゃ</td>
             <td>醫生</td>  
           </tr>
           <tr>
-            <td>けんきゅうしゃ</td>
+            <td class="pronounce" data-audio="audio/14.mp3">けんきゅうしゃ</td>
             <td>研究員</td>
           </tr>
           <tr>
-            <td>エンジニア</td>
+            <td class="pronounce" data-audio="audio/15.mp3">エンジニア</td>
             <td>工程師</td>
           </tr>
           <tr>
-            <td>だいがく</td>
+            <td class="pronounce" data-audio="audio/16.mp3">だいがく</td>
             <td>大學</td>
           </tr>
           <tr>
-            <td>びょういん</td>
+            <td class="pronounce" data-audio="audio/17.mp3">びょういん</td>
             <td>醫院</td>
           </tr>
           <tr>
-            <td>でんき</td>
+            <td class="pronounce" data-audio="audio/18.mp3">でんき</td>
             <td>電燈</td>
           </tr>
           <tr>
-            <td>だれ</td>
+            <td class="pronounce" data-audio="audio/19.mp3">だれ</td>
             <td>誰</td>
           </tr>
           <tr>
-            <td>どなた</td>
+            <td class="pronounce" data-audio="audio/20.mp3">どなた</td>
             <td>誰-有禮貌</td>
           </tr>
           <tr>
-            <td>～さい</td>
+            <td class="pronounce" data-audio="audio/21.mp3">～さい</td>
             <td>~歲</td>
           </tr>
           <tr>
-            <td>なんさい</td>
+            <td class="pronounce" data-audio="audio/22.mp3">なんさい</td>
             <td>幾歲</td>
           </tr>
           <tr>
-            <td>おいくつ</td>
+            <td class="pronounce" data-audio="audio/23.mp3">おいくつ</td>
             <td>幾歲-有禮貌</td>
           </tr>
+          <tr>
+            <td>......</td>
+            <td>......</td>
+          </tr>
+          <tr>
+            <td>......</td>
+            <td>......</td>
+          </tr>
+          <tr>
+            <td>......</td>
+            <td>......</td>
+          </tr>
         </table>
-        
-      </div>
-
     </div>
     <div class="status-bar">
           <div class="record">
@@ -262,14 +289,28 @@
               <input type="submit" value="上傳" name="audio" accept="audio/*">
             </form>
             <!--播放器-->
-            <audio style="margin: 10px;height: 50px;width: 400px;" controls class="audio-player"></audio>
+            <div class="audio-mp3">
+              <audio style="margin: 10px;height: 30px;width: 100px;" controls class="audio-player"></audio>
+            </div>
           </div>
     </div>
     <script>
       const recordBtn = document.querySelector(".record-btn"); //取得錄音按鈕的class name
       const player = document.querySelector(".audio-player");  //取得播放器的class name
       const Form = document.querySelector('form');  //取得表單(上傳按鈕)
-
+      document.addEventListener('DOMContentLoaded', function() { 
+            var pronounceElements = document.querySelectorAll('.pronounce'); // 取得所有帶有 'pronounce' 類別的元素
+            pronounceElements.forEach(function(element) { // 對每個 'pronounce' 元素添加點擊事件
+                element.addEventListener('click', function() {   // 獲取被點擊元素的 'data-audio' 屬性，即音訊路徑
+                    var audioPath = this.getAttribute('data-audio');
+                    playAudio(audioPath); // 播放該音訊
+                });
+            });
+        });
+      function playAudio(audioPath) { // 播放音訊的函數
+            var audio = new Audio(audioPath);  // 創建一個新的 Audio 物件，設置音訊路徑
+            audio.play(); // 播放音訊
+      }
       Form.style.display = 'none';  //隱藏上傳按鈕
       player.style.display = 'none';  //隱藏播放器
       //許可麥克風

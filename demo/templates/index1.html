@@ -115,12 +115,13 @@
       }
       @media screen and (max-width:1000px){
       h1{
-        font-size: 35px;
-        letter-spacing:2px;
-        text-align: center;
-      }
+          font-size: 25px;
+          letter-spacing:2px;
+          text-align: left;
+          padding-bottom: 0px;
+        }
       li{
-        font-size: 30px;
+        font-size: 20px;
       }
       .box1{
         width: 100%;
@@ -133,6 +134,22 @@
         width: 100%;
         text-align: center;
       }
+    }
+    .pronounce{
+        font-size:20px;
+        /*設定字的大小*/
+        background-color: #178ca4;
+        /*設定背景的顏色*/
+        color: #f9f7f0;
+        /*設定字的顏色*/  
+    }
+    .pronounce:hover{
+      background-color: black;
+      width: 100px;
+      /*設定背景的顏色*/
+    }
+    tr{
+      text-align: center;
     }
     </style>
     <title>日語發音校正系統</title>
@@ -147,11 +164,11 @@
           <!--使用說明-->
           <li style="font-size: 35px;"><b>方法：</b></li>
           <li>1. 允許麥克風的權限</li>
-          <li>2. 在右側的字表中選擇任意字詞</li>
+          <li>2. 在右側的字表中選擇字詞</li>
           <li>3. 按下字表上方的開始鍵</li>
           <li>4. 對著裝置念出選擇的字詞</li>
           <li>5. 按下完成鍵</li>
-          <li>6. 可於字表上方的播放器確認語音</li>
+          <li>6. 可於在播放器確認語音</li>
           <li>7. 確認後按下上傳鍵</li>
           <li>8. 等待系統的判定結果</li>
         </ol>
@@ -188,65 +205,65 @@
             <th>中文</th>
           </tr>
           <tr>
-            <td>わたし</td>
+            <td class="pronounce" data-audio="audio/1.mp3">わたし</td>
             <td>我</td>
-            <td>わたしたち</td>
+            <td class="pronounce" data-audio="audio/2.mp3">わたしたち</td>
             <td>我們</td>
-            <td>あなた</td>
+            <td class="pronounce" data-audio="audio/3.mp3">あなた</td>
             <td>你</td>
           </tr>
           <tr>
-            <td>あのひと</td>
+            <td class="pronounce" data-audio="audio/4.mp3">あのひと</td>
             <td>那個人</td>
-            <td>あのかた</td>
+            <td class="pronounce" data-audio="audio/5.mp3">あのかた</td>
             <td>那個人-有禮貌</td>
-            <td>みなさん</td>
+            <td class="pronounce" data-audio="audio/6.mp3">みなさん</td>
             <td>大家</td>
           </tr>
           <tr>
-            <td>せんせい</td>
+            <td class="pronounce" data-audio="audio/7.mp3">せんせい</td>
             <td>老師</td>
-            <td>きょうし</td>
+            <td class="pronounce" data-audio="audio/8.mp3">きょうし</td>
             <td>教室</td>
-            <td>がくせい</td>
+            <td class="pronounce" data-audio="audio/9.mp3">がくせい</td>
             <td>學生</td>
           </tr>
           <tr>
-            <td>かいしゃいん</td>
+            <td class="pronounce" data-audio="audio/10.mp3">かいしゃいん</td>
             <td>公司職員</td>
-            <td>しゃいん</td>
+            <td class="pronounce" data-audio="audio/11.mp3">しゃいん</td>
             <td>職員</td>
-            <td>ぎんこういん</td>
+            <td class="pronounce" data-audio="audio/12.mp3">ぎんこういん</td>
             <td>銀行員</td>
           </tr>
           <tr>
-            <td>いしゃ</td>
+            <td class="pronounce" data-audio="audio/13.mp3">いしゃ</td>
             <td>醫生</td>
-            <td>けんきゅうしゃ</td>
+            <td class="pronounce" data-audio="audio/14.mp3">けんきゅうしゃ</td>
             <td>研究員</td>
-            <td>エンジニア</td>
+            <td class="pronounce" data-audio="audio/15.mp3">エンジニア</td>
             <td>工程師</td>
           </tr>
           <tr>
-            <td>だいがく</td>
+            <td class="pronounce" data-audio="audio/16.mp3">だいがく</td>
             <td>大學</td>
-            <td>びょういん</td>
+            <td class="pronounce" data-audio="audio/17.mp3">びょういん</td>
             <td>醫院</td>
-            <td>でんき</td>
+            <td class="pronounce" data-audio="audio/18.mp3">でんき</td>
             <td>電燈</td>
           </tr>
           <tr>
-            <td>だれ</td>
+            <td class="pronounce" data-audio="audio/19.mp3">だれ</td>
             <td>誰</td>
-            <td>どなた</td>
+            <td class="pronounce" data-audio="audio/20.mp3">どなた</td>
             <td>誰-有禮貌</td>
-            <td>～さい</td>
+            <td class="pronounce" data-audio="audio/21.mp3">～さい</td>
             <td>~歲</td>
           </tr>
           <tr>
-            <td>なんさい</td>
+            <td class="pronounce" data-audio="audio/22.mp3">なんさい</td>
             <td>幾歲</td>
-            <td>おいくつ</td>
+            <td class="pronounce" data-audio="audio/23.mp3">おいくつ</td>
             <td>幾歲-有禮貌</td>
           </tr>
         </table>
@@ -259,7 +276,19 @@
       const recordBtn = document.querySelector(".record-btn"); //取得錄音按鈕的class name
       const player = document.querySelector(".audio-player");  //取得播放器的class name
       const Form = document.querySelector('form');  //取得表單(上傳按鈕)
-
+      document.addEventListener('DOMContentLoaded', function() { 
+            var pronounceElements = document.querySelectorAll('.pronounce'); // 取得所有帶有 'pronounce' 類別的元素
+            pronounceElements.forEach(function(element) { // 對每個 'pronounce' 元素添加點擊事件
+                element.addEventListener('click', function() {   // 獲取被點擊元素的 'data-audio' 屬性，即音訊路徑
+                    var audioPath = this.getAttribute('data-audio');
+                    playAudio(audioPath); // 播放該音訊
+                });
+            });
+        });
+      function playAudio(audioPath) { // 播放音訊的函數
+            var audio = new Audio(audioPath);  // 創建一個新的 Audio 物件，設置音訊路徑
+            audio.play(); // 播放音訊
+      }
       Form.style.display = 'none';  //隱藏上傳按鈕
       player.style.display = 'none';  //隱藏播放器
       //許可麥克風

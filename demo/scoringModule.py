@@ -2,6 +2,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
 import pandas as pd
 import pyarrow as pa
 import librosa
@@ -9,38 +10,22 @@ import subprocess
 import torchaudio
 import pykakasi
 from datasets import Dataset
-from transformers import HubertForCTC, Wav2Vec2Processor, AutoTokenizer, HubertModel
+from transformers import HubertForCTC, Wav2Vec2Processor, AutoTokenizer
 from reazonspeech.nemo.asr import transcribe, audio_from_path, load_model
 from modelscope.pipelines import pipeline
 from modelscope.utils.constant import Tasks
-
+import difflib
 
 
 # ----- Model Loading -----
 kks = pykakasi.kakasi()
 model = load_model()
-
 processor = Wav2Vec2Processor.from_pretrained('TKU410410103/uniTKU-hubert-japanese-asr')
 hubert = HubertForCTC.from_pretrained('TKU410410103/uniTKU-hubert-japanese-asr')
 hubert.config.output_hidden_states=True
 tokenizer = AutoTokenizer.from_pretrained("cl-tohoku/bert-base-japanese-char")
 
 # ----- Function Definitions -----
-
-def acoustic_noise_suppression(input_wav_path, output_wav_path):
-    ans = pipeline(
-        Tasks.acoustic_noise_suppression,
-        model='damo/speech_frcrn_ans_cirm_16k')
-    result = ans(
-        input_wav_path,
-        output_path=output_wav_path)
-    return result
-
-def modified_filename(file_path):
-    base_name = file_path.rsplit('.', 1)[0]
-    extension = file_path.rsplit('.', 1)[1]
-    output_file = f"{base_name}1.{extension}"
-    return output_file
 
 def convert_to_wav(input_path, output_path):
     command = [
@@ -57,6 +42,43 @@ def convert_to_wav(input_path, output_path):
         print("FFmpeg failed:")
         print(e.stderr.decode('utf-8'))
         raise e
+
+def modified_filename(file_path):
+    base_name = file_path.rsplit('.', 1)[0]
+    extension = file_path.rsplit('.', 1)[1]
+    output_file = f"{base_name}1.{extension}"
+    return output_file
+
+
+def acoustic_noise_suppression(input_wav_path, output_wav_path):
+    ans = pipeline(
+        Tasks.acoustic_noise_suppression,
+        model='damo/speech_frcrn_ans_cirm_16k')
+    result = ans(
+        input_wav_path,
+        output_path=output_wav_path)
+    return result
+
+def detect_audio_features(audio_file, energy_threshold=0.1, amplitude_threshold=0.1):
+    # Load the audio file once
+    y, sr = librosa.load(audio_file, sr=None)
+
+    # Calculate frame energy
+    frame_length = int(0.025 * sr)  # 25ms frame length
+    hop_length = int(0.010 * sr)    # 10ms hop length
+    frames = librosa.util.frame(y, frame_length=frame_length, hop_length=hop_length)
+    energy = np.sum(np.square(frames), axis=0)
+    avg_energy = np.mean(energy)
+
+    # Calculate maximum amplitude
+    max_amplitude = np.max(np.abs(y))
+
+    # Print the results
+    print("Average Energy:", avg_energy)
+    print("Maximum Amplitude:", max_amplitude)
+
+    # Return the checks as a tuple
+    return (avg_energy > energy_threshold) and (max_amplitude > amplitude_threshold)
 
 def process_waveforms(batch):
     waveform, sample_rate = torchaudio.load(batch['audio_path'])
@@ -77,6 +99,29 @@ def asr(path):
     ret = transcribe(model, audio)
     result = kks.convert(ret.text)
     return result[0]['hira']
+
+def get_most_similar(predicted_word):
+    correct_words = ['わたし', 'わたしたち', 'あなた', 'あのひと', 'あのかた', 'みなさん', 
+                     'せんせい', 'きょうし', 'がくせい', 'かいしゃいん','しゃいん', 
+                     'ぎんこういん', 'いしゃ', 'けんきゅうしゃ', 'エンジニア', 'だいがく', 
+                     'びょういん', 'でんき', 'だれ', 'どなた', '～さい', 'なんさい', 'おいくつ']
+    # 初始化最高相似度和對應的單字
+    highest_similarity = 0.0
+    most_similar_word = predicted_word
+    
+    # 遍歷正確的單字列表，比較相似度
+    for word in correct_words:
+        # 使用SequenceMatcher計算相似度
+        similarity = difflib.SequenceMatcher(None, predicted_word, word).ratio()
+        
+        # 更新最高相似度和最相似的單字
+        if similarity > highest_similarity:
+            highest_similarity = similarity
+            most_similar_word = word
+    print(f'most similar word: ', most_similar_word, 'highest_similarity: ', highest_similarity)
+    if highest_similarity < 0.2:
+        return '單字未被收納'
+    return most_similar_word
 
 class BLSTMSpeechScoring(nn.Module):
     def __init__(self, input_size=768, hidden_size=128, num_layers=1, output_size=1, embedding_dim=64, vocab_size=4000):
@@ -177,17 +222,21 @@ def scoring(file_path):
     convert_to_wav(input_path=file_path, output_path=converted_file_path)
     
     output_file = modified_filename(converted_file_path)
-    acoustic_noise_suppression(input_wav_path=converted_file_path, output_wav_path=output_file)
-    
-    df = make_dataframe(output_file)
-    dataset = Dataset.from_pandas(df)
-    dataset_array = dataset.map(process_waveforms, remove_columns=['audio_path'])
-    acoustic_input = get_acoustic_feature(dataset_array)
-    text = list(df['text'])
-    score = trainer.pred(acoustic_input, text)
+    acoustic_noise_suppression(input_wav_path=converted_file_path, output_wav_path=output_file) # output_file 降噪音檔
 
-    score = 1 if score > judge else 0
+    if(detect_audio_features(output_file)):
+        df = make_dataframe(output_file)
+        dataset = Dataset.from_pandas(df)
+        dataset_array = dataset.map(process_waveforms, remove_columns=['audio_path'])
+        acoustic_input = get_acoustic_feature(dataset_array)
+        text = list(df['text'])
+        similar_text = get_most_similar(text[0][:-1])
+        if similar_text == '單字未被收納':
+            return 0, similar_text
+        score = trainer.pred(acoustic_input, similar_text)
+        score = 1 if score > judge else float(score)
+        print('score: ', score*100)
+        
+        return score*100, similar_text
 
-    return score*100
-    # return f"{float(score):.2f}"
-
+    return -1, None
