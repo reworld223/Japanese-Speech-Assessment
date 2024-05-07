@@ -1,43 +1,28 @@
-pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+conda install python=3.10.12
 
-pip install torchaudio # 2.2.1+cu118
+# 基本機器學習庫
+conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+
 pip install librosa
 
-pip install 'transformers[torch]' -U #  Hugging Face 提供的lib，包含最新的自然語言處理模型和其所有的依賴庫
-pip uninstall transformer-engine
-pip install fairseq # 由 Facebook AI 研究所開發的序列到序列學習工具包
-pip install datasets==2.17.1 # Hugging Face 的dataset
+# Hugging Face 
+pip install "transformers[torch]" datasets==2.17.1 huggingface_hub
 
-pip install huggingface_hub # huggingface社群
+# 日語處理
+pip install fugashi mecab-python3 ipadic pykakasi
 
-pip install fugashi # MeCab 是日語的形態學分析器，有助於將日語文本分割成單詞或標記。
-pip install mecab-python3
+# 其他數據處理和音頻處理工具
+pip install numpy pyarrow 
 
-pip install ipadic # MeCab 的詞典，專為日語處理定製，提供豐富的語言學信息。
-pip install unidic-lite
+# 降噪和語音處理
+pip install "modelscope[multi-modal]"
+conda install -c conda-forge ffmpeg
 
-pip install pykakasi # 日文轉換平假名用
+# ASR model
+pip install Cython
+git clone https://github.com/reazon-research/ReazonSpeech
+pip install --no-warn-conflicts ReazonSpeech/pkg/nemo-asr
+pip install ReazonSpeech/pkg/nemo-asr
 
-pip install evaluate # Hugging Face 的evaluate庫，這裡用於 WER
-pip install jiwer # WER 需要
-
-
-pip install numpy==1.23.5
-pip install pyarrow==9.0.0
-pip install openpyxl # 打開xlsx
-
-pip install "modelscope[multi-modal]" # 降噪
-
-# 語音辨識
-apt-get install libsndfile1 ffmpeg 
-git clone https://github.com/reazon-research/reazonspeech
-pip install --no-warn-conflicts reazonspeech/pkg/nemo-asr
----------------------------------------------
-
-pip install flask-ngrok
-pip install flask
-pip install pyngrok
-pip install pydub
-
-apt-get update
-apt-get install ffmpeg -y
+# 網頁伺服器
+pip install flask flask-ngrok pyngrok pydub

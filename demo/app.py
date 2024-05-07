@@ -57,6 +57,4 @@ def end():
         return render_template('index2.html',word_str=result ,word_dict=text)#index2的路徑
 
 if __name__=='__main__':
-    public_url = ngrok.connect(5000)
-    print("Public URL:", public_url)
     app.run(debug=True, use_reloader=False)
