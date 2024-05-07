@@ -25,6 +25,7 @@
     - [HuBERT](https://huggingface.co/TKU410410103/uniTKU-hubert-japanese-asr): 用於語音特徵提取。
     - [ReazonSpeech_v2](https://github.com/reazon-research/ReazonSpeech): 用於語音辨識。
     - [FRCRN](https://github.com/alibabasglab/FRCRN): 提供音檔降噪。
+
 ---
 ### 資料集
 - [**Common Voice 11.0 Dataset**](https://huggingface.co/datasets/mozilla-foundation/common_voice_11_0/viewer/ja)：用於微調 SSL 模型，以提高對日語語音的特徵提取能力。
