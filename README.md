@@ -1,7 +1,7 @@
 # 日文發音評分系統
 
 ---
-## Demo
+## DEMO
 ![demo影片](demo.gif)
 
 ---
