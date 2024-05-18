@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <title>測試結果</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@500&display=swap');
+
+        html {
+            font-family: 'Mochiy Pop One', sans-serif;
+            font-family: 'Zen Maru Gothic', sans-serif;
+            margin-top: 10px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: #f9f7f0;
+        }
+
+        h1 {
+            font-size: 100px;
+            letter-spacing: 4px;
+            color: #18b7be;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+        
+        .inputword {
+            font-size: 70px;
+            margin: 10px auto;
+            text-align: center;
+        }
+
+        button, input {
+            font-size: 25px;
+            border: 2px #178ca4 solid;
+            border-radius: 20px;
+            cursor: pointer;
+            height: 50px;
+            width: 200px;
+            background-color: #f9f7f0;
+            color: #178ca4;
+            transition-duration: 0.4s;
+            margin: 10px auto;
+            display: block;
+            bottom: 0;
+        }
+
+        button:hover, input:hover {
+            background-color: #178ca4;
+            color: #f9f7f0;
+        }
+
+        .box1 {
+            display: flex;
+            margin-left: auto;
+            margin-right: auto;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+    <h1>測試結果</h1>
+    <div class="box1"> 
+        <p id="text" class="inputword"></p> 
+        <p id="scoretext" class="inputword"></p>  
+    </div>
+    <button class="returnback" onclick="back_to_record()">返回測試頁面</button>
+    <script>
+        var word_str = {{ word_str }}; 
+        var word_dict = "{{ word_dict }}"; 
+        var text = document.getElementById("text");
+        text.textContent = word_dict;
+        var scoreText = document.getElementById("scoretext");
+        if(word_str === 100){
+            scoreText.textContent = "發音正確";
+        }else if(word_str === 0){
+            scoreText.textContent = "";
+        }else if(word_str < 30){
+            scoreText.textContent = "發音錯誤";
+        }else if(word_str >= 30 && word_str < 40){
+            scoreText.textContent = "加油，只差一點了";
+        }else if(word_str >= 40 && word_str <= 65){
+            scoreText.textContent = "有點不對，再試一次";
+        }
+        function back_to_record() {
+            location.href = "/";
+        }
+    </script>
+</body>
+</html>
