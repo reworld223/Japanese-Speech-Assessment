@@ -16,6 +16,7 @@ pip install numpy pyarrow
 
 # 降噪和語音處理
 pip install "modelscope[multi-modal]"
+pip install uvicorn 
 conda install -c conda-forge ffmpeg
 
 # ASR model
