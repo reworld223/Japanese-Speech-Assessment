@@ -15,7 +15,7 @@ from modelscope.utils.constant import Tasks
 import difflib
 import time
 import os
-
+from transformers import AutoTokenizer
 # ----- Model Loading -----
 kks = pykakasi.kakasi()
 model = load_model()
