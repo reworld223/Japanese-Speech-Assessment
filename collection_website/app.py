@@ -50,11 +50,11 @@ def end():
     global nowtime
     fileName = nowtime  #放入剛進入介面時產生的檔名
     fileurl = os.path.join(UPLOAD_FOLDER, fileName)  #獲取檔案儲存的位置路徑
-    result, text = collect.collect(fileurl)
+    result, asr_text = collect.collect(fileurl)
     if result == -1:
         return render_template('index4.html',word_str=result)#index4的路徑
     else:
-        return render_template('index2.html',word_str=result ,word_dict=text)#index2的路徑
+        return render_template('index2.html',word_str=result)#index2的路徑
 
 if __name__=='__main__':
     public_url = ngrok.connect(5000)

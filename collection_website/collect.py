@@ -16,13 +16,13 @@ import difflib
 import time
 import os
 from transformers import AutoTokenizer
+
 # ----- Model Loading -----
 kks = pykakasi.kakasi()
 model = load_model()
 tokenizer = AutoTokenizer.from_pretrained("cl-tohoku/bert-base-japanese-char")
 
 # ----- Function Definitions -----
-
 def wait_for_file(file_path, timeout=3):
     start_time = time.time()
     while not os.path.exists(file_path):
@@ -30,7 +30,7 @@ def wait_for_file(file_path, timeout=3):
             raise FileNotFoundError(f"The file {file_path} does not exist after waiting for {timeout} seconds.")
         time.sleep(0.5) 
 
-def convert_to_wav(input_path, output_path, retries=5):
+def convert_to_wav(input_path, output_path, retries=10):
     command = [
         'ffmpeg',
         '-i', input_path,
@@ -65,10 +65,20 @@ def modified_filename(file_path):
     return output_file
 
 
+# def acoustic_noise_suppression(input_wav_path, output_wav_path):
+#     ans = pipeline(
+#         Tasks.acoustic_noise_suppression,
+#         model='damo/speech_frcrn_ans_cirm_16k')
+#     result = ans(
+#         input_wav_path,
+#         output_path=output_wav_path)
+#     return result
+
 def acoustic_noise_suppression(input_wav_path, output_wav_path):
+    local_model_path = os.path.expanduser('~/.cache/modelscope/hub/damo/speech_frcrn_ans_cirm_16k')
     ans = pipeline(
         Tasks.acoustic_noise_suppression,
-        model='damo/speech_frcrn_ans_cirm_16k')
+        model=local_model_path)
     result = ans(
         input_wav_path,
         output_path=output_wav_path)
@@ -88,11 +98,9 @@ def detect_audio_features(audio_file, energy_threshold=0.1, amplitude_threshold=
     # Calculate maximum amplitude
     max_amplitude = np.max(np.abs(y))
 
-    # Print the results
     print("Average Energy:", avg_energy)
     print("Maximum Amplitude:", max_amplitude)
 
-    # Return the checks as a tuple
     return (avg_energy > energy_threshold) and (max_amplitude > amplitude_threshold)
 
 def asr(path):
@@ -120,8 +128,8 @@ def get_most_similar(predicted_word):
             highest_similarity = similarity
             most_similar_word = word
     print(f'most similar word: ', most_similar_word, 'highest_similarity: ', highest_similarity)
-    if highest_similarity < 0.4:
-        return '單字未被收納'
+    if highest_similarity < 0.3:
+        return 0
     return most_similar_word
 
 def make_dataframe(audio_path):
@@ -145,7 +153,10 @@ def collect(file_path):
         dataset = Dataset.from_pandas(df)
         text = list(df['text'])
         similar_text = get_most_similar(text[0][:-1])
-        if similar_text == '單字未被收納':
+        if similar_text == 0:
+            os.remove(file_path)
+            os.remove(converted_file_path)
+            os.remove(output_file)
             return 0, similar_text
         
         # 確認目標資料夾存在，不存在則創建
@@ -164,4 +175,7 @@ def collect(file_path):
         
         return 100, similar_text
     
+    os.remove(file_path)
+    os.remove(converted_file_path)
+    os.remove(output_file)
     return -1, None
